@@ -1,0 +1,9 @@
+GitPython==2.1.0
+argparse==1.2.1
+colorama==0.3.7
+gitdb2==2.0.0
+python-gitlab==0.16
+requests==2.11.1
+six==1.10.0
+smmap2==2.0.1
+wsgiref==0.1.2
