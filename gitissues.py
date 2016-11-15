@@ -1,26 +1,17 @@
 import textwrap
 
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 from colorama import Fore, Style
-from git import Repo
-from urlparse import urlparse
 
 
 class GitIssues(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        self.repo = Repo('.')
-        self.repo_config = self.repo.config_reader()
+    hosts = []
+    config_key = None
 
-        url = self.repo.remote().url
-        if '//' not in url:
-            url = '//' + url
-
-        repo_url = urlparse(url)
-        self.git_server = '{}://{}'.format(
-                repo_url.scheme or 'http', repo_url.hostname)
-        self.git_project = url.split(':')[-1].split('.')[0]
+    def __init__(self, repo):
+        pass
 
     @abstractmethod
     def get_issues(self): pass

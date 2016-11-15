@@ -5,17 +5,21 @@ from gitissues import GitIssues
 
 
 class GitLabIssues(GitIssues):
-    def __init__(self):
-        super(GitLabIssues, self).__init__()
 
-        private_token = self.repo_config.get_value('gitlab', 'token')
-        self.gl = gitlab.Gitlab(self.git_server, private_token, ssl_verify=False)
+    hosts = ['gitlab.com']
+    config_key = 'gitlab'
+
+    def __init__(self, repo):
+        self.repo = repo
+
+        private_token = repo.config.get_value('gitlab', 'token')
+        self.gl = gitlab.Gitlab(repo.git_server, private_token, ssl_verify=False)
         #self.gl.enable_debug()
         self.gl.auth()
 
     def get_issues(self):
         issues = []
-        project = self.gl.projects.get(self.git_project)
+        project = self.gl.projects.get(self.repo.git_project)
 
         for issue in project.issues.list(state='opened'):
             issues.append({

@@ -3,8 +3,11 @@
 import argparse
 import colorama
 import requests
+import sys
 
+from ConfigParser import NoSectionError
 from gitlabissues import GitLabIssues
+from gitrepo import GitRepo
 from requests.packages.urllib3.exceptions import (SNIMissingWarning,
         InsecurePlatformWarning, InsecureRequestWarning)
 
@@ -18,11 +21,46 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+def main():
+    providers = [
+        GitLabIssues
+    ]
+
+    repo = GitRepo()
+
+    issues_provider_class = None
+    for provider in providers:
+        if repo.git_host in provider.hosts:
+            print('Found a provider by host'.format(provider))
+            issues_provider_class = provider
+
+    if issues_provider_class is None:
+        print('Not a known git host {}'.format(repo.git_host))
+
+        provider_key = None
+        try:
+            provider_key = repo.config.get_value('gitissues', 'provider')
+        except NoSectionError:
+            pass
+
+        if provider_key:
+            for provider in providers:
+                if provider_key == provider.config_key:
+                    print('Found provider by git config {}'.format(provider))
+                    issues_provider_class = provider
+
+    if issues_provider_class is None:
+        print('Can\'t find git issues provider, please configure it in git config')
+        print('  git config gitissues.provider gitlab')
+        sys.exit(1)
+
+    gi = issues_provider_class(repo)
+    gi.list_issues()
+
 
 if __name__ == '__main__':
     colorama.init()
 
     parse_args()
 
-    gi = GitLabIssues()
-    gi.list_issues()
+    main()
